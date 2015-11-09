@@ -45,11 +45,14 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
         PensatoLeapVREnvCtrl.currentColor = PensatoLeapVREnvCtrl.colorChoices[0];
 
         liveSongCtrl = (LiveSongProxyController)LiveSongProxyController.instance;
+<<<<<<< HEAD
 
         initEnvironments();
+=======
+        addEnvironment(40, 0.025f);
 
         liveLink.proxyCreationComplete += connectPlugs;
-
+>>>>>>> refs/remotes/Mystfit/master
     }
 
     public void connectPlugs()
@@ -81,11 +84,20 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
             }
             if (trackAmplitudePlug.connections.Count > 0)
             {
+<<<<<<< HEAD
                 audioAmplAvg = (audioAmplAvg + lastAmplAvg) / 2;
                 updateAudioDataToEnv(environments[0].GetComponent<PensatoEnvironment>(), audioAmplAvg);
                 updateAudioDataToEnv(environments[1].GetComponent<PensatoEnvironment>(), audioAmplAvg);
                 lastAmplAvg = audioAmplAvg;
+=======
                 audioAmplAvg /= total;
+                if (lastAmplAvg != audioAmplAvg)
+                {
+                    audioAmplAvg = (audioAmplAvg + lastAmplAvg) / 2;
+                    updateAudioDataToEnv(environments[0].GetComponent<PensatoEnvironment>(), audioAmplAvg);
+                    lastAmplAvg = audioAmplAvg;
+                }
+>>>>>>> refs/remotes/Mystfit/master
             }
         }
     }
