@@ -12,6 +12,7 @@ build
 *.unityproj
 *.sln
 *.userprefs
+*.suo
 
 Live/TeslaRift\ Project/Icon?
 
