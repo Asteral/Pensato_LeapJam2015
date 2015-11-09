@@ -9,12 +9,12 @@ public class LiveSongProxy : LiveProxy {
     private Transform trackParent;
     private Transform trackPickerParent;
 
-    private LiveTrackProxy m_activeTrack;
-    public LiveTrackProxy activeTrack { get { return m_activeTrack; } } 
+    private CrystalSelectDatabinder m_activeTrackBtn;
+    public LiveTrackProxy activeTrack { get { return m_activeTrackBtn.track; } } 
 
     void Awake () {
         isCloneable = false;
-        trackParent = gameObject.FindInChildren("tracks").transform;
+        trackParent = transform.Find("tracks").transform;
         trackPickerParent = transform.GetChild(1);// gameObject.FindInChildren("track_picker").transform;
     }
 
@@ -33,16 +33,25 @@ public class LiveSongProxy : LiveProxy {
     public void createTrackSelectButton(LiveTrackProxy track)
     {
         GameObject trackBtn = GameObject.Instantiate(((LiveSongProxyController)LiveSongProxyController.instance).trackSelectPrefab);
-        TrackSelectButton btn = trackBtn.GetComponent<TrackSelectButton>();
+        CrystalSelectDatabinder btn = trackBtn.GetComponent<CrystalSelectDatabinder>();
         btn.setText(track.proxyName);
-        btn.m_track = track;
+        btn.init(track, trackBtn.GetComponentInChildren<ButtonDemoToggle>());
+        track.deviceParent.GetComponent<RadialHologram>().origin = btn.transform;
+        btn.track = track;
         btn.transform.SetParent(trackPickerParent, false);
     }
 
-    public void displayTrack(LiveTrackProxy track)
+    public void displayTrack(CrystalSelectDatabinder trackBtn)
     {
-        if(activeTrack != null) m_activeTrack.gameObject.SetActive(false);
-        m_activeTrack = track;
-        m_activeTrack.gameObject.SetActive(true);
+        if (m_activeTrackBtn == trackBtn)
+            return;
+        if (m_activeTrackBtn != null)
+        {
+            m_activeTrackBtn.SetCurrentData(false);
+            m_activeTrackBtn.track.gameObject.SetActive(false);
+        }
+        m_activeTrackBtn = trackBtn;
+        m_activeTrackBtn.SetCurrentData(true);
+        m_activeTrackBtn.track.gameObject.SetActive(true);
     }
 }
