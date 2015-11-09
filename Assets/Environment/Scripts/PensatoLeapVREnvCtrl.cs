@@ -34,39 +34,70 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
     //-----------------------------------
 
     public List<GameObject> environments = new List<GameObject>();
+    public PatchCable trackAmplitudePlug = new PatchCable(PatchCable.PlugType.PLUG);
+    public LiveLink liveLink;
 
     public float audioAmplAvg = 0;
     public float lastAmplAvg = -1;
 
-    // Use this for initialization
     void Start () {
         PensatoLeapVREnvCtrl.instance = this;
         PensatoLeapVREnvCtrl.currentColor = PensatoLeapVREnvCtrl.colorChoices[0];
 
         liveSongCtrl = (LiveSongProxyController)LiveSongProxyController.instance;
+<<<<<<< HEAD
 
         initEnvironments();
+=======
+        addEnvironment(40, 0.025f);
+
+        liveLink.proxyCreationComplete += connectPlugs;
+>>>>>>> refs/remotes/Mystfit/master
+    }
+
+    public void connectPlugs()
+    {
+        LiveTrackProxyController trackControl = (LiveTrackProxyController)LiveTrackProxyController.instance;
+        foreach (LiveTrackProxy track in trackControl.proxies.Values)
+            track.amplitudeJack.Connect(trackAmplitudePlug);
     }
 	
-	// Update is called once per frame
-	void Update () {
-        ready = (liveSongCtrl.trackData.Length > 0);
-
-        if (ready)
+	void Update ()
+    {
+        audioAmplAvg = 0;
+        int total = 0;
+        if (trackAmplitudePlug != null)
         {
-            audioAmplAvg = 0;
-            for (int i = 0; i < liveSongCtrl.trackData.Length; i++)
-            {
-                audioAmplAvg += liveSongCtrl.trackData[i];
+            if (trackAmplitudePlug.IsDirty) {
+                foreach (PatchCable incoming in trackAmplitudePlug.connections)
+                {
+                    float[] jackValue = trackAmplitudePlug.jackValue(incoming);
+                    if (jackValue != null)
+                    {
+                        for (int i = 0; i < jackValue.Length; i++)
+                        {
+                            audioAmplAvg += jackValue[i];
+                            total++;
+                        }
+                    }
+                }
             }
-            audioAmplAvg /= liveSongCtrl.trackData.Length;
-
-            if (lastAmplAvg != audioAmplAvg)
+            if (trackAmplitudePlug.connections.Count > 0)
             {
+<<<<<<< HEAD
                 audioAmplAvg = (audioAmplAvg + lastAmplAvg) / 2;
                 updateAudioDataToEnv(environments[0].GetComponent<PensatoEnvironment>(), audioAmplAvg);
                 updateAudioDataToEnv(environments[1].GetComponent<PensatoEnvironment>(), audioAmplAvg);
                 lastAmplAvg = audioAmplAvg;
+=======
+                audioAmplAvg /= total;
+                if (lastAmplAvg != audioAmplAvg)
+                {
+                    audioAmplAvg = (audioAmplAvg + lastAmplAvg) / 2;
+                    updateAudioDataToEnv(environments[0].GetComponent<PensatoEnvironment>(), audioAmplAvg);
+                    lastAmplAvg = audioAmplAvg;
+                }
+>>>>>>> refs/remotes/Mystfit/master
             }
         }
     }
