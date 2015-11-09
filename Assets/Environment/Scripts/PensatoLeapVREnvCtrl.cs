@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class PensatoLeapVREnvCtrl : MonoBehaviour {
 
-    public static PensatoLeapVREnvCtrl mainControl;
+    public static PensatoLeapVREnvCtrl instance;
 
     public static Color[] colorChoices = {
         new Color(0f / 255f, 153f / 255f, 255f / 255f),
@@ -19,7 +19,16 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
     LiveSongProxyController liveSongCtrl;
     public bool ready = false;
 
-    public GameObject tileAsset;
+    //- Env 0 -----------------------------------
+    public GameObject env_0_tileAsset;
+    public int env_0_rad = 40;
+    public float env_0_padding = .025f;
+    //-----------------------------------
+
+    //- Env 1 -----------------------------------
+    public GameObject env_1_fireworksAsset;
+    //-----------------------------------
+
     public List<GameObject> environments = new List<GameObject>();
 
     public float audioAmplAvg = 0;
@@ -27,12 +36,12 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        PensatoLeapVREnvCtrl.mainControl = this;
+        PensatoLeapVREnvCtrl.instance = this;
         PensatoLeapVREnvCtrl.currentColor = PensatoLeapVREnvCtrl.colorChoices[0];
 
         liveSongCtrl = (LiveSongProxyController)LiveSongProxyController.instance;
 
-        addEnvironment(40, 0.025f);
+        initEnvironments();
     }
 	
 	// Update is called once per frame
@@ -57,15 +66,24 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
         }
     }
 
-    public void addEnvironment(int size, float padding)
+    private void initEnvironments()
     {
-        GameObject o = new GameObject("PensatoEnv_"+ environments.Count.ToString() );
+        GameObject env;
+
+        env = addNewEnvWrapper();
+        HexGridEnvironment hexGridScripts = env.AddComponent<HexGridEnvironment>();
+        hexGridScripts.setup(env_0_tileAsset, env_0_rad, env_0_padding);
+        hexGridScripts.initEnv();
+        environments.Add(env);
+
+        env = addNewEnvWrapper();
+    }
+
+    private GameObject addNewEnvWrapper()
+    {
+        GameObject o = new GameObject("PensatoEnv_" + environments.Count.ToString());
         o.transform.SetParent(transform, false);
-
-        PensatoEnvironment oEnvScript = o.AddComponent<PensatoEnvironment>();
-        oEnvScript.initEnv(tileAsset, size, padding);
-
-        environments.Add(o);
+        return o;
     }
 
     private void updateAudioDataToEnv(PensatoEnvironment env, float audioData)
