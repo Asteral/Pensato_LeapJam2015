@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class Hextile : MonoBehaviour
 {
-    public Color currentCol;
-    public Color targetCol;
+    private Color currentCol;
+    private Color targetCol;
 
     public float targetColorLerp = 0.0f;
 
@@ -35,10 +35,10 @@ public class Hextile : MonoBehaviour
         //    targetColorLerp += Random.Range(-audioData[idx] * 0.5f, audioData[idx] * 0.5f);
         //}
 
-        targetColorLerp = audioData[idx] * dataScale - 0.15f;
+        targetColorLerp = audioData[idx] * dataScale - 0.1f;
 
         targetCol = Color.Lerp(Color.black, PensatoLeapVREnvCtrl.currentColor, targetColorLerp);
-        currentCol = Color.Lerp(currentCol, targetCol, 0.1f);
+        currentCol = Color.Lerp(currentCol, targetCol, 0.4f);
 
         mat.SetColor("_EmissionColor", currentCol);
         //GetComponent<Light>().color = currentCol;

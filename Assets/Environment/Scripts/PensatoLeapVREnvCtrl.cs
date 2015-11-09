@@ -27,10 +27,6 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
 
     //- Env 1 -----------------------------------
     public GameObject env_1_fireworksAsset;
-    public int env_1_numFireworks = 100;
-    public float env_1_nearRadius = 0.15f;
-    public float env_1_farRadius = 0.3f;
-    public float env_1_fireworkMaxHeight = 0.35f;
     //-----------------------------------
 
     public List<GameObject> environments = new List<GameObject>();
@@ -83,7 +79,6 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
             {
                 audioAmplAvg = (audioAmplAvg + lastAmplAvg) / 2;
                 updateAudioDataToEnv(environments[0].GetComponent<PensatoEnvironment>(), audioAmplAvg);
-                updateAudioDataToEnv(environments[1].GetComponent<PensatoEnvironment>(), audioAmplAvg);
                 lastAmplAvg = audioAmplAvg;
                 audioAmplAvg /= total;
             }
@@ -95,16 +90,12 @@ public class PensatoLeapVREnvCtrl : MonoBehaviour {
         GameObject env;
 
         env = addNewEnvWrapper();
-        HexGridEnvironment hexGridScript = env.AddComponent<HexGridEnvironment>();
-        hexGridScript.setup(env_0_tileAsset, env_0_rad, env_0_padding);
-        hexGridScript.initEnv();
+        HexGridEnvironment hexGridScripts = env.AddComponent<HexGridEnvironment>();
+        hexGridScripts.setup(env_0_tileAsset, env_0_rad, env_0_padding);
+        hexGridScripts.initEnv();
         environments.Add(env);
 
         env = addNewEnvWrapper();
-        PlasmaFireworksEnvironment plasmaFireScript = env.AddComponent<PlasmaFireworksEnvironment>();
-        plasmaFireScript.setup(env_1_fireworksAsset, env_1_numFireworks, env_1_nearRadius, env_1_farRadius, env_1_fireworkMaxHeight);
-        plasmaFireScript.initEnv();
-        environments.Add(env);
     }
 
     private GameObject addNewEnvWrapper()

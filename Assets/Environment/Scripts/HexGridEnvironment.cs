@@ -8,11 +8,11 @@ public class HexGridEnvironment : PensatoEnvironment {
     public float padding;
 
 	// Use this for initialization
-	void Start() {
+	void Start () {
 	}
 	
 	// Update is called once per frame
-	void Update() {
+	void Update () {
 	    
 	}
 
@@ -33,8 +33,6 @@ public class HexGridEnvironment : PensatoEnvironment {
 
         float maxDist = size * padding;
 
-        GameObject tile;
-        Hextile script;
         for (int row = 0; row < size + oddFix; row++)
         {
             int cols = size - Mathf.Abs(row - half) + oddFix;
@@ -43,15 +41,15 @@ public class HexGridEnvironment : PensatoEnvironment {
             {
                 Vector3 p = Vector3.zero;
                 p.x = xOff * (col * 2 + 1 - cols);
-                p.z = yOff * (row - half) * 3;
+                p.z = yOff * (row - half) * 3; 
 
-                tile = (GameObject)Instantiate(tileAsset, p, Quaternion.Euler(270, 0, 0));
-                tile.transform.SetParent(gameObject.transform, false);
+                GameObject t = (GameObject)Instantiate(tileAsset, p, Quaternion.Euler(90, 0, 0));
+                t.transform.SetParent(gameObject.transform, false);
 
-                script = tile.GetComponent<Hextile>();
-                script.idx = (int)Mathf.Abs((Vector3.Distance(tile.transform.position, transform.position) / (maxDist * 1.1f)) * samples);
+                Hextile script = t.GetComponent<Hextile>();
+                script.idx = (int)Mathf.Abs((Vector3.Distance(t.transform.position, transform.position) / (maxDist * 1.1f)) * samples);
                 script.setAudioData(audioData);
-                assets.Add(tile);
+                assets.Add(t);
             }
         }
     }

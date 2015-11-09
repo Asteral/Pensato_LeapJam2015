@@ -11,7 +11,7 @@ public class PensatoEnvironment : MonoBehaviour {
     public int envSize;
     public float envPadding;
 
-    protected int samples = 256;
+    protected int samples = 128;
 
     public List<GameObject> assets = new List<GameObject>();
 

@@ -1,129 +1,104 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class PlasmaFirework : MonoBehaviour
 {
-    private bool ready = false;
-    private bool grown = false;
-    private bool exploded = false;
 
-    public bool awaitngReset = false;
-
-    public float speed;
-    public float size;
-
-	public Vector3 targetPos;
-
-    private float spawnMaxDelay;
-    private float spawnDelay;
-
-    public int idx;
-
+	public float speed;
+	public Vector3 startPos;
+	public Vector3 endPos;
+	public float size;
+	private int id;
+	private PlasmaFireworkManager manager;
+	private float spawnDelay;
+	private bool ready = false;
+	private bool grown = false;
+	private bool exploded = false;
 	private ParticleSystem particles;
 
-    private List<float> audioData;
-
-    public float explodeThreshold;
+    public float dataPoint = 1.0f;
 
 	// Use this for initialization
 	void Start ()
 	{
 		particles = GetComponent<ParticleSystem> ();
+		init ();
 	}
 
-    public void init(float fwspeed, float fwsize, float fwmaxH, float maxSpawnDelay, float explosionLimit)
+	void init ()
 	{
-        ready = false;
-        grown = false;
-        exploded = false;
-        awaitngReset = false;
-
-        StopAllCoroutines();
-        transform.localScale = Vector3.zero;
-
-        speed = fwspeed;
-        size = fwsize;
-
-        targetPos = transform.position;
-        targetPos.y += Random.Range(fwmaxH*0.5f, fwmaxH);
-
-        spawnMaxDelay = maxSpawnDelay;
-        explodeThreshold = explosionLimit;
-    }
+		StopAllCoroutines ();
+		transform.position = startPos;
+		transform.localScale = Vector3.zero;
+		ready = false;
+		grown = false;
+		exploded = false;
+		speed = 0.1f;
+		size = .003f;
+		endPos = new Vector3 (startPos.x, startPos.y + Random.Range (0.0f, manager.fireworkMaxHeight), startPos.z);
+		StartCoroutine (SpawnDelay());
+	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-        if (ready && !grown)
-        {
-            StartCoroutine(Grow());
-            grown = true;
+		if (ready && !grown) {
+			StartCoroutine (Grow ());
+			grown = true;
+		}
+		if (grown && !exploded) {
+			Vector3 toEnd = endPos - transform.position;
+			transform.Translate (toEnd.normalized * speed);
+			transform.localScale = new Vector3 (size, size, size);
+            //speed = (10.0f * (Spectrum.bands [manager.registerOnBand]) + 0.15f);
+            //size = (10.0f * (Spectrum.bands [manager.registerOnBand]) + 0.5f);
+            speed = (0.03f * dataPoint + 0.00045f);
+            size = (0.03f * dataPoint + 0.0015f);
         }
+        if ((grown && !exploded)) {
+            //if (Vector3.Distance (transform.position, endPos) < speed || Spectrum.getVolume() > manager.explosionVolume) {
+            if (Vector3.Distance (transform.position, endPos) < speed || dataPoint > manager.explosionVolume) {
+                StartCoroutine(ExplodeMe ());
+				exploded = true;
+			}
+		}
+	}
 
-        if (grown && !exploded)
-        {
-            //transform.position = Vector3.Lerp(transform.position, targetPos, 0.00005f+ audioData[idx]*.01f);
+	IEnumerator SpawnDelay ()
+	{
+		spawnDelay = Random.Range(0.0f, manager.spawnMaxDelay);
+		yield return new WaitForSeconds (spawnDelay);
+		ready = true;
+	}
 
-            transform.Translate(targetPos.normalized * speed);
-            transform.localScale = new Vector3(size, size, size);
-            speed = (.03f * (audioData[idx]) + 0.00045f);
-            size = (.03f * (audioData[idx]) + 0.0015f);
-        }
+	IEnumerator Grow ()
+	{
+		transform.localScale = new Vector3 (0.01f, 0.01f, 0.01f); //non-zero
+		while (transform.localScale.x < size) {
+			transform.localScale *= 1.1f;
+			yield return new WaitForEndOfFrame ();
+		}
+	}
 
-        if ((grown && !exploded))
-        {
-            if (Vector3.Distance(transform.position, targetPos) < 0.2f || audioData[idx] > explodeThreshold)
-            {
-                StopCoroutine(Grow());
-                StartCoroutine(ExplodeMe());
+	IEnumerator ExplodeMe ()
+	{
+		particles.startSpeed = speed * 10.0f;
+		particles.Play ();
+		while (transform.localScale.x > 0.01f) {
+			transform.localScale *= 0.9f;
+			yield return new WaitForEndOfFrame ();
+		}
+		particles.Stop ();
+		init ();
+	}
 
-                exploded = true;
-            }
-        }
-    }
+	public void setId (int ID)
+	{
+		id = ID;
+	}
 
-    IEnumerator SpawnDelay()
-    {
-        spawnDelay = Random.Range(0.0f, spawnMaxDelay);
-        yield return new WaitForSeconds(spawnDelay);
-        ready = true;
-    }
-
-    IEnumerator Grow()
-    {
-        transform.localScale = new Vector3(0.0001f, 0.0001f, 0.0001f); //non-zero
-        while (transform.localScale.x < size*.00003)
-        {
-            transform.localScale *= 1.01f;
-            yield return new WaitForEndOfFrame();
-        }
-    }
-
-    IEnumerator ExplodeMe()
-    {
-        particles.startSpeed = 0.005f;
-        particles.Play();
-        particles.loop = false;
-        while (transform.localScale.x > 0.02f)
-        {
-            transform.localScale *= 0.9f;    
-            yield return new WaitForEndOfFrame();
-        }
-
-        yield return new WaitForSeconds(2.0f);
-
-        particles.Stop();
-        awaitngReset = true;
-    }
-
-    public void ignite()
-    {
-        StartCoroutine(SpawnDelay());
-    }
-
-    public void setAudioData(List<float> aud)
-    {
-        audioData = aud;
-    }
+	public void setManager (PlasmaFireworkManager man)
+	{
+		manager = man;
+	}
 }
